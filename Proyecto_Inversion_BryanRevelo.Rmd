@@ -1,0 +1,677 @@
+---
+title: "Proyecto de Factibilidad para la implementación de una Consultoría de Business Intelligence dirigido al mercado de pymes de la ciudad de Guayaquil."
+
+author: "Bryan Revelo Yagual"
+date: "2023-11-25"
+output: pdf_document
+lang: es-ES
+---
+
+## Calculo de la Muestra
+
+El área de influencia comprenderá pymes de las diferentes parroquias de la ciudad de Guayaquil. Para el cálculo de la población proyectada se partió tomando datos de la SUPERCIAS el cual se determinó un número de 37.730 pymes activas. Para determinar el tamaño de la muestra se aplicó el siguiente calculo y formula. 
+
+```{r}
+# Cargando la librería necesaria para el cálculo de la muestra
+library(sampling)
+
+# Número de empresas activas en la ciudad de Guayaquil
+N <- 37000
+
+# Nivel de confianza deseado para el estudio (expresado como porcentaje)
+conf.level <- 0.95  # 95% de nivel de confianza
+
+# Margen de error permitido en el estudio (expresado como porcentaje)
+margin.error <- 0.05  # 5% de margen de error
+
+# Proporción estimada de la respuesta (50% es un valor común para máxima variabilidad)
+p <- 0.5  # Distribución de respuesta del 50%
+
+# Z-score correspondiente al nivel de confianza deseado
+z <- qnorm(1 - (1 - conf.level) / 2)  # Z-score para 95% de nivel de confianza
+
+# Cálculo inicial del tamaño de la muestra sin ajustar para la población
+n_0 <- (z^2 * p * (1 - p)) / (margin.error^2)
+
+# Ajuste del tamaño de la muestra considerando la población total
+tamaño_muestra <- n_0 / (1 + ((n_0 - 1) / N))
+
+# Redondeando hacia arriba para obtener un número entero
+tamaño_muestra <- ceiling(tamaño_muestra)
+
+# Imprimiendo el resultado con una frase descriptiva
+print(paste("El cálculo del tamaño de la muestra es:", tamaño_muestra))
+```
+
+## Distribución de la Muestra
+
+Para efectos de este proyecto y para mayor precisión en los resultados se han tomado como referencia 381 encuestas que fueron aplicadas a las pymes y emprendedores de la ciudad de Guayaquil. Estás se distribuyeron vía correo electrónico.
+
+```{r}
+
+# Se crea un data frame con la información de las parroquias, porcentajes de participación 
+# y número de encuestas
+datos_parroquias <- data.frame(
+  Parroquias = c("Ayacucho", "Bolívar-Sagrario", "Carbo-Concepción", "Febres Cordero",
+                 "García Moreno", "Letamendi", "9 de octubre", "Olmedo-San Alejo",
+                 "Roca", "Rocafuerte", "Sucre", "Tarqui", "Urdaneta", "Ximena",
+                 "Chongón", "Pascuales", "Total"),
+  Participación = c(3.41, 6.82, 6.30, 5.25, 5.25, 7.09, 7.09, 6.30, 6.82, 5.77,
+                    8.14, 6.04, 4.99, 7.35, 5.25, 8.14, 100),
+  Encuestas = c(13, 26, 24, 20, 20, 27, 27, 24, 26, 22, 31, 23, 19, 28, 20, 31, 381)
+)
+
+# Se utiliza la función kable del paquete knitr para generar una tabla en formato adecuado 
+# para R Markdown
+knitr::kable(datos_parroquias, caption = "Distribución de Encuestas por Parroquia")
+
+```
+
+## Resultados 
+
+### Pregunta 1: ¿Cuál es su nivel de familiaridad con el concepto de Business Intelligence (BI)?
+
+
+#### Tabla de Frecuencia: 
+
+```{r}
+
+# Se carga la librería knitr para utilizar la función kable en la creación de tablas
+library(knitr)
+
+# Se establece un data frame con las categorías de familiaridad con BI, la frecuencia y el porcentaje correspondiente
+datos_familiaridad_bi <- data.frame(
+  `Nivel de Familiaridad con BI` = c("No estoy familiarizado/a", "Tengo un conocimiento básico",
+                                     "Estoy moderadamente familiarizado/a", "Tengo un conocimiento avanzado",
+                                     "Soy un experto/a en BI", "Total"),
+  Frecuencia = c(40, 30, 15, 10, 5, 100),
+  Porcentaje = c("40.0%", "30.0%", "15.0%", "10.0%", "5.0%", "100.0%")
+)
+
+# Se utiliza la función kable para presentar los datos en una tabla formateada para R Markdown
+knitr::kable(datos_familiaridad_bi, caption = "Niveles de Familiaridad con BI")
+```
+
+#### Gráfica: 
+Pregunta 1
+
+```{r}
+
+# Cargar la librería ggplot2 para gráficas
+library(ggplot2)
+
+# Crear un data frame con los datos 
+nivel_familiaridad <- c("No estoy familiarizado/a", "Tengo un conocimiento básico",
+                        "Estoy moderadamente familiarizado/a", "Tengo un conocimiento avanzado",
+                        "Soy un experto/a en BI")
+frecuencia <- c(40, 30, 15, 10, 5)
+porcentaje <- c(40, 30, 15, 10, 5)
+
+df_survey <- data.frame(NivelFamiliaridad = nivel_familiaridad, Frecuencia = frecuencia, Porcentaje = porcentaje)
+
+# Crear la gráfica de barras
+ggplot(data = df_survey, aes(x = NivelFamiliaridad, y = Frecuencia, fill = NivelFamiliaridad)) +
+  geom_bar(stat = "identity") +
+  theme_minimal() +
+  labs(title = "Nivel de Familiaridad con Business Intelligence (BI)",
+       x = "Nivel de Familiaridad con BI",
+       y = "Frecuencia") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Ajustar el texto del eje x
+
+# Mostrar la gráfica
+ggsave("BI_familiarity_level.png", width = 10, height = 6, dpi = 300)
+
+```
+
+#### Analisis:
+
+El 70% de los encuestados tienen poca o ninguna familiaridad con Business Intelligence, lo que indica un mercado potencial significativo para una consultoría de BI en Guayaquil. Este grupo podría beneficiarse considerablemente de los servicios de consultoría que aumenten su comprensión y aplicación de BI. Solo un 5% se considera experto, lo cual sugiere que hay una oportunidad limitada para servicios avanzados o especializados. El 25% restante con conocimiento moderado o avanzado podría necesitar menos formación y estar más listo para adoptar soluciones de BI. Estos resultados pueden interpretarse como un indicador positivo para la factibilidad de establecer una consultoría de BI, ya que hay una necesidad clara de educación y servicios en esta área.
+
+
+### Pregunta 2: ¿Su empresa utiliza actualmente alguna herramienta de Business Intelligence?
+
+#### Tabla de Frecuencia: 
+
+```{r}
+# Se carga la librería knitr, que contiene la función kable para la generación de tablas
+library(knitr)
+
+# Creación de un data frame que contiene el uso de herramientas de BI, junto con su frecuencia y porcentaje
+datos_uso_bi <- data.frame(
+  `Uso de Herramientas de BI` = c("No utilizamos BI", "Sí, pero de manera muy básica",
+                                  "Sí, utilizamos BI regularmente para algunas funciones",
+                                  "Sí, y es central en nuestra toma de decisiones", "Total"),
+  Frecuencia = c(60, 20, 15, 5, 100),
+  Porcentaje = c("60.0%", "20.0%", "15.0%", "5.0%", "100.0%")
+)
+
+# Se aplica la función kable para convertir el data frame en una tabla estilizada y lista para ser incluida en el documento
+knitr::kable(datos_uso_bi, caption = "Uso de Herramientas de BI")
+```
+
+#### Gráfica: 
+Pregunta 2
+
+```{r}
+
+# Asegurar de tener ggplot2 cargado para ejecutar este código
+if(!require(ggplot2)) install.packages("ggplot2")
+library(ggplot2)
+
+# Datos sobre el uso de herramientas de BI
+uso_herramientas_bi <- c("No utilizamos BI", "Sí, pero de manera muy básica", 
+                         "Sí, utilizamos BI regularmente para algunas funciones", 
+                         "Sí, y es central en nuestra toma de decisiones")
+frecuencia <- c(60, 20, 15, 5)
+porcentaje <- c(60, 20, 15, 5)
+
+df_uso_bi <- data.frame(UsoHerramientasBI = uso_herramientas_bi, Frecuencia = frecuencia, Porcentaje = porcentaje)
+
+# Crear la gráfica de barras
+ggplot(df_uso_bi, aes(x = UsoHerramientasBI, y = Frecuencia, fill = UsoHerramientasBI)) +
+  geom_bar(stat = "identity") +
+  scale_y_continuous(labels = scales::percent_format()) +
+  theme_minimal() +
+  labs(title = "Uso de Herramientas de Business Intelligence en Pymes",
+       x = "Uso de Herramientas de BI",
+       y = "Frecuencia (%)") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Ajustar el texto del eje x para mejorar la legibilidad
+
+```
+
+#### Analisis:
+
+El 60% de los encuestados indica que no utilizan BI en absoluto, lo que revela una gran oportunidad de mercado para una empresa de consultoría que busca implementar BI en pymes. Un 20% emplea BI de manera muy básica, sugiriendo la posibilidad de ofrecer servicios que mejoren su uso y comprensión de estas herramientas. Los que ya utilizan BI regularmente o lo consideran central en su toma de decisiones representan un 20% y podrían beneficiarse de servicios de consultoría más avanzados y personalizados. La predominante falta de uso de BI destaca la factibilidad y la necesidad de una consultoría de BI en Guayaquil, apuntando a un mercado potencialmente receptivo a dichos servicios.
+
+
+### Pregunta 3: ¿Qué software de BI conoce o ha utilizado?
+
+#### Tabla de Frecuencia: 
+
+```{r}
+
+# Carga de la librería knitr, que se utiliza para la creación de tablas con la función kable
+library(knitr)
+
+# Se crea un data frame con la información proporcionada sobre el software de BI conocido o utilizado y sus correspondientes frecuencias y porcentajes
+software_bi <- data.frame(
+  `Software de BI Conocido/Usado` = c("No conozco ninguno", "Microsoft Excel para análisis de datos",
+                                      "Google Analytics para análisis web",
+                                      "Plataformas específicas de BI (por ejemplo, Tableau, Power BI)",
+                                      "Otras herramientas avanzadas de análisis de datos", "Total"),
+  Frecuencia = c(70, 15, 10, 3, 2, 100),
+  Porcentaje = c("70.0%", "15.0%", "10.0%", "3.0%", "2.0%", "100.0%")
+)
+
+# Utilización de la función kable para convertir el data frame en una tabla con el formato adecuado para R Markdown, incluyendo un título explicativo
+knitr::kable(software_bi, caption = "Software de BI Conocido/Usado y su Frecuencia")
+
+```
+
+#### Gráfica: 
+Pregunta 3
+
+```{r}
+
+# Asegúrate de tener ggplot2 cargado para ejecutar este código
+if(!require(ggplot2)) install.packages("ggplot2")
+library(ggplot2)
+
+# Datos sobre el conocimiento o uso de software de BI
+software_bi <- c("No conozco ninguno", 
+                 "Microsoft Excel para análisis de datos", 
+                 "Google Analytics para análisis web", 
+                 "Plataformas específicas de BI (por ejemplo, Tableau, Power BI)", 
+                 "Otras herramientas avanzadas de análisis de datos")
+frecuencia <- c(70, 15, 10, 3, 2)
+porcentaje <- c(70, 15, 10, 3, 2)
+
+df_software_bi <- data.frame(SoftwareBI = software_bi, Frecuencia = frecuencia, Porcentaje = porcentaje)
+
+# Crear la gráfica de barras
+ggplot(df_software_bi, aes(x = SoftwareBI, y = Frecuencia, fill = SoftwareBI)) +
+  geom_bar(stat = "identity") +
+  theme_minimal() +
+  labs(title = "Conocimiento o Uso de Software de Business Intelligence en Pymes",
+       x = "Software de BI Conocido/Usado",
+       y = "Frecuencia") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Ajustar el texto del eje x para mejorar la legibilidad
+
+```
+
+#### Analisis:
+
+El 70% de los encuestados reporta no conocer ningún software de BI, lo que resalta una falta significativa de conocimiento en este campo y sugiere un mercado amplio para los servicios de consultoría de BI. Un 15% ha utilizado Microsoft Excel para análisis de datos, lo que puede indicar una base de conocimiento en análisis de datos que podría ser mejorada mediante la formación en herramientas de BI más especializadas. Solo un pequeño porcentaje utiliza herramientas específicas de BI o Google Analytics, lo que muestra que hay una oportunidad considerable para la expansión del conocimiento y uso de BI en pymes de Guayaquil. Estos resultados refuerzan la idea de que existe una demanda potencial para una consultoría de BI que pueda ofrecer tanto capacitación como implementación de soluciones de BI en la región.
+
+
+### Pregunta 4: ¿Cuál es la principal razón para no haber implementado BI en su empresa?
+
+#### Tabla de Frecuencia: 
+
+```{r}
+# Carga de la librería knitr para la creación de tablas con kable
+library(knitr)
+
+# Se establece un data frame con las razones por las que no se usa BI, junto con la frecuencia y el porcentaje de cada una
+razones_no_uso_bi <- data.frame(
+  `Razón para No Usar BI` = c("Falta de conocimiento sobre BI", "Costo percibido como muy alto",
+                              "Falta de personal calificado", "No lo consideramos necesario",
+                              "Otras razones", "Total"),
+  Frecuencia = c(45, 35, 10, 5, 5, 100),
+  Porcentaje = c("45.0%", "35.0%", "10.0%", "5.0%", "5.0%", "100.0%")
+)
+
+# Se usa la función kable para convertir el data frame en una tabla bien formateada para R Markdown
+# Se añade un título a la tabla para explicar su contenido
+knitr::kable(razones_no_uso_bi, caption = "Razones para No Usar BI")
+```
+
+#### Gráfica: 
+Pregunta 4
+
+```{r}
+
+# Asegúrate de tener ggplot2 cargado para ejecutar este código
+if(!require(ggplot2)) install.packages("ggplot2")
+library(ggplot2)
+
+# Datos sobre las razones para no usar BI
+razones_no_uso_bi <- c("Falta de conocimiento sobre BI", 
+                       "Costo percibido como muy alto", 
+                       "Falta de personal calificado", 
+                       "No lo consideramos necesario", 
+                       "Otras razones")
+frecuencia <- c(45, 35, 10, 5, 5)
+porcentaje <- c(45, 35, 10, 5, 5)
+
+df_razones_no_bi <- data.frame(RazonesNoUsoBI = razones_no_uso_bi, Frecuencia = frecuencia, Porcentaje = porcentaje)
+
+# Crear la gráfica de barras
+ggplot(df_razones_no_bi, aes(x = RazonesNoUsoBI, y = Frecuencia, fill = RazonesNoUsoBI)) +
+  geom_bar(stat = "identity") +
+  theme_minimal() +
+  labs(title = "Razones Principales para No Implementar BI en Empresas",
+       x = "Razón para No Usar BI",
+       y = "Frecuencia") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Ajustar el texto del eje x para mejorar la legibilidad
+
+```
+
+#### Analisis:
+
+La mayoría de las empresas encuestadas no han implementado BI principalmente debido a la falta de conocimiento sobre BI y al costo percibido. Esto indica una oportunidad significativa para una consultoría de BI en la ciudad de Guayaquil. El 45% de las empresas que no conocen BI pueden beneficiarse de servicios de educación y capacitación, mientras que el 35% preocupado por los costos podría ser atraído por soluciones rentables o demostraciones del retorno de la inversión. La falta de personal calificado también presenta una oportunidad para ofrecer servicios de outsourcing o capacitación. En general, estos resultados sugieren una demanda potencial para una consultoría de BI que pueda abordar estas preocupaciones y barreras para la adopción de BI en las pymes de Guayaquil.
+
+
+### Pregunta 5: ¿Cómo calificaría la capacidad de su empresa para recopilar y analizar datos?
+
+#### Tabla de Frecuencia: 
+
+```{r}
+
+# Importación de la librería knitr para usar la función kable, que permite crear tablas en R Markdown
+library(knitr)
+
+# Creación de un data frame que contiene la capacidad de análisis de datos, con las correspondientes frecuencias y porcentajes
+capacidad_analisis_datos <- data.frame(
+  `Capacidad de Análisis de Datos` = c("Muy pobre", "Pobre", "Regular", "Buena", "Excelente", "Total"),
+  Frecuencia = c(40, 30, 20, 7, 3, 100),
+  Porcentaje = c("40.0%", "30.0%", "20.0%", "7.0%", "3.0%", "100.0%")
+)
+
+# Aplicación de la función kable para convertir el data frame en una tabla estilizada
+# Se añade un título a la tabla que describe su contenido
+knitr::kable(capacidad_analisis_datos, caption = "Capacidad de Análisis de Datos en las Organizaciones")
+
+```
+
+#### Gráfica: 
+Pregunta 5
+
+```{r}
+
+# Asegúrate de tener ggplot2 cargado para ejecutar este código
+if(!require(ggplot2)) install.packages("ggplot2")
+library(ggplot2)
+
+# Datos sobre la capacidad de análisis de datos
+capacidad_analisis_datos <- c("Muy pobre", "Pobre", "Regular", "Buena", "Excelente")
+frecuencia <- c(40, 30, 20, 7, 3)
+porcentaje <- c(40, 30, 20, 7, 3)
+
+df_capacidad_datos <- data.frame(CapacidadAnalisisDatos = capacidad_analisis_datos, Frecuencia = frecuencia, Porcentaje = porcentaje)
+
+# Crear la gráfica de barras
+ggplot(df_capacidad_datos, aes(x = CapacidadAnalisisDatos, y = Frecuencia, fill = CapacidadAnalisisDatos)) +
+  geom_bar(stat = "identity") +
+  theme_minimal() +
+  labs(title = "Capacidad de las Empresas para Recopilar y Analizar Datos",
+       x = "Capacidad de Análisis de Datos",
+       y = "Frecuencia") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Ajustar el texto del eje x para mejorar la legibilidad
+
+```
+
+#### Analisis:
+
+El 70% de las empresas encuestadas consideran su capacidad para recopilar y analizar datos como deficiente, lo que indica una necesidad significativa de mejora en estas áreas. Esta falta de capacidad de análisis de datos representa una oportunidad considerable para una consultoría de Business Intelligence en Guayaquil. La implementación de BI podría ayudar a estas empresas a mejorar sus habilidades en la recopilación y análisis de datos, lo que a su vez podría llevar a una toma de decisiones más informada y a una mejor gestión del negocio. Las empresas que califican su capacidad como "Regular" también podrían beneficiarse de los servicios de BI para avanzar a niveles superiores de competencia en análisis de datos. En resumen, estos resultados sugieren un mercado potencialmente amplio para los servicios de consultoría de BI, enfocados en mejorar las capacidades de análisis de datos de las pymes en la región.
+
+### Pregunta 6: ¿Qué beneficios cree que la consultoría de BI podría aportar a su empresa?
+
+#### Tabla de Frecuencia: 
+
+```{r}
+
+# Se carga el paquete knitr para el uso de kable en la creación de tablas
+library(knitr)
+
+# Se define un data frame que representa los beneficios percibidos de la consultoría de BI con las frecuencias y porcentajes asociados
+beneficios_bi <- data.frame(
+  `Beneficios Percibidos de Consultoría de BI` = c("Mejora en la toma de decisiones", "Aumento de la eficiencia operativa",
+                                                   "Mejora en la comprensión del cliente", "Optimización de la cadena de suministro",
+                                                   "No estoy seguro/a de los beneficios", "Total"),
+  Frecuencia = c(15, 20, 10, 10, 45, 100),
+  Porcentaje = c("15.0%", "20.0%", "10.0%", "10.0%", "45.0%", "100.0%")
+)
+
+# Se emplea la función kable para formatear el data frame como una tabla en el documento R Markdown, añadiendo un encabezado descriptivo
+knitr::kable(beneficios_bi, caption = "Beneficios Percibidos de Consultoría de BI")
+
+```
+
+#### Gráfica: 
+Pregunta 6
+
+```{r}
+
+# Asegúrate de tener ggplot2 cargado para ejecutar este código
+if(!require(ggplot2)) install.packages("ggplot2")
+library(ggplot2)
+
+# Datos sobre los beneficios percibidos de la consultoría de BI
+beneficios_bi <- c("Mejora en la toma de decisiones", 
+                   "Aumento de la eficiencia operativa", 
+                   "Mejora en la comprensión del cliente", 
+                   "Optimización de la cadena de suministro", 
+                   "No estoy seguro/a de los beneficios")
+frecuencia <- c(15, 20, 10, 10, 45)
+porcentaje <- c(15, 20, 10, 10, 45)
+
+df_beneficios_bi <- data.frame(BeneficiosBI = beneficios_bi, Frecuencia = frecuencia, Porcentaje = porcentaje)
+
+# Crear la gráfica de barras
+ggplot(df_beneficios_bi, aes(x = BeneficiosBI, y = Frecuencia, fill = BeneficiosBI)) +
+  geom_bar(stat = "identity") +
+  theme_minimal() +
+  labs(title = "Percepción de los Beneficios de la Consultoría de BI en Empresas",
+       x = "Beneficios Percibidos de Consultoría de BI",
+       y = "Frecuencia") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Ajustar el texto del eje x para mejorar la legibilidad
+
+```
+
+#### Analisis:
+
+El 45% de las empresas encuestadas no están seguras de los beneficios que la consultoría de BI podría aportar, lo que indica una falta de conocimiento y comprensión sobre BI. Esto sugiere una oportunidad significativa para la educación y la sensibilización sobre BI en la región de Guayaquil. Entre aquellos que reconocen los beneficios, un 20% percibe el aumento de la eficiencia operativa como un beneficio clave, mientras que la mejora en la toma de decisiones y la comprensión del cliente también se consideran importantes, aunque en menor medida. Estos resultados indican que hay una necesidad de clarificar y comunicar los beneficios específicos de BI a las pymes, lo que podría aumentar el interés y la adopción de servicios de consultoría de BI en la región.
+
+
+### Pregunta 7: ¿Cuál sería su disposición para invertir en una consultoría de BI?
+
+#### Tabla de Frecuencia: 
+
+```{r}
+
+# Carga de la librería knitr para la utilización de la función kable, que facilita la creación de tablas
+library(knitr)
+
+# Creación de un data frame que contiene los datos sobre la disposición para invertir en BI, con las frecuencias y porcentajes asociados
+disposicion_inversion_bi <- data.frame(
+  `Disposición para Invertir en BI` = c("No estoy dispuesto/a", "Solo si es muy económico",
+                                        "Dispuesto/a si se demuestran claros beneficios",
+                                        "Dispuesto/a a invertir lo que sea necesario",
+                                        "Ya tenemos presupuesto asignado para BI", "Total"),
+  Frecuencia = c(40, 30, 20, 5, 5, 100),
+  Porcentaje = c("40.0%", "30.0%", "20.0%", "5.0%", "5.0%", "100.0%")
+)
+
+# Utilización de kable para formatear el data frame como una tabla en R Markdown, añadiendo un título explicativo a la tabla
+knitr::kable(disposicion_inversion_bi, caption = "Disposición para Invertir en BI")
+
+```
+
+#### Gráfica: 
+Pregunta 7
+
+```{r}
+
+# Asegúrate de tener ggplot2 cargado para ejecutar este código
+if(!require(ggplot2)) install.packages("ggplot2")
+library(ggplot2)
+
+# Datos sobre la disposición a invertir en BI
+disposicion_invertir_bi <- c("No estoy dispuesto/a", 
+                             "Solo si es muy económico", 
+                             "Dispuesto/a si se demuestran claros beneficios", 
+                             "Dispuesto/a a invertir lo que sea necesario", 
+                             "Ya tenemos presupuesto asignado para BI")
+frecuencia <- c(40, 30, 20, 5, 5)
+porcentaje <- c(40, 30, 20, 5, 5)
+
+df_disposicion_bi <- data.frame(DisposicionInvertirBI = disposicion_invertir_bi, Frecuencia = frecuencia, Porcentaje = porcentaje)
+
+# Crear la gráfica de barras
+ggplot(df_disposicion_bi, aes(x = DisposicionInvertirBI, y = Frecuencia, fill = DisposicionInvertirBI)) +
+  geom_bar(stat = "identity") +
+  theme_minimal() +
+  labs(title = "Disposición de las Empresas para Invertir en Consultoría de BI",
+       x = "Disposición para Invertir en BI",
+       y = "Frecuencia") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Ajustar el texto del eje x para mejorar la legibilidad
+
+```
+
+#### Analisis:
+
+El 40% de las empresas encuestadas no están dispuestas a invertir en BI, y un 30% adicional solo invertiría si el costo es muy económico. Esto sugiere una percepción de alto riesgo o incertidumbre asociada con la inversión en BI. Sin embargo, un 20% estaría dispuesto a invertir si se demuestran claros beneficios, lo que indica una oportunidad para las consultorías de BI que puedan presentar casos de éxito convincentes y demostrar un retorno de la inversión. La minoría que ya tiene un presupuesto asignado o está dispuesta a invertir lo que sea necesario (10% en total) puede representar el segmento de mercado inicial más accesible para los servicios de consultoría de BI. Estos resultados resaltan la importancia de una estrategia de mercado que se enfoque en la educación y demostración del valor de BI para superar la reticencia inicial a la inversión en la ciudad de Guayaquil.
+
+
+### Pregunta 8: ¿Qué obstáculos considera más significativos para implementar BI en su empresa?
+
+#### Tabla de Frecuencia: 
+
+```{r}
+
+# Se carga el paquete knitr, necesario para la creación de tablas con la función kable
+library(knitr)
+
+# Creación de un data frame que detalla los obstáculos significativos para la implementación de BI, incluyendo frecuencias y porcentajes
+obstaculos_bi <- data.frame(
+  `Obstáculos Significativos para BI` = c("Costo de implementación", "Complejidad técnica", "Resistencia al cambio",
+                                          "Falta de tiempo para capacitación", "No percibimos obstáculos significativos", "Total"),
+  Frecuencia = c(35, 30, 20, 10, 5, 100),
+  Porcentaje = c("35.0%", "30.0%", "20.0%", "10.0%", "5.0%", "100.0%")
+)
+
+# Utilización de la función kable para formatear el data frame como una tabla en R Markdown, añadiendo un título descriptivo
+knitr::kable(obstaculos_bi, caption = "Obstáculos Significativos para la Implementación de BI")
+
+```
+
+#### Gráfica: 
+Pregunta 8
+
+```{r}
+
+# Asegúrate de tener ggplot2 cargado para ejecutar este código
+if(!require(ggplot2)) install.packages("ggplot2")
+library(ggplot2)
+
+# Datos sobre los obstáculos para implementar BI
+obstaculos_bi <- c("Costo de implementación", "Complejidad técnica", 
+                   "Resistencia al cambio", "Falta de tiempo para capacitación", 
+                   "No percibimos obstáculos significativos")
+frecuencia <- c(35, 30, 20, 10, 5)
+porcentaje <- c(35, 30, 20, 10, 5)
+
+df_obstaculos_bi <- data.frame(ObstaculosBI = obstaculos_bi, Frecuencia = frecuencia, Porcentaje = porcentaje)
+
+# Crear la gráfica de barras
+ggplot(df_obstaculos_bi, aes(x = ObstaculosBI, y = Frecuencia, fill = ObstaculosBI)) +
+  geom_bar(stat = "identity") +
+  theme_minimal() +
+  labs(title = "Obstáculos Significativos para la Implementación de BI en Empresas",
+       x = "Obstáculos Significativos para BI",
+       y = "Frecuencia") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Ajustar el texto del eje x para mejorar la legibilidad
+
+```
+
+#### Analisis:
+
+El 35% de los encuestados considera que el costo de implementación es el mayor obstáculo para adoptar BI, seguido por la complejidad técnica (30%). Esto sugiere que hay una percepción significativa de que BI requiere una inversión considerable y conocimientos técnicos avanzados. La resistencia al cambio y la falta de tiempo para capacitación también son obstáculos notables, lo que indica la necesidad de estrategias de gestión del cambio y capacitación eficiente. Solo un 5% de las empresas no perciben obstáculos significativos, lo cual puede reflejar un segmento de mercado más maduro o conocedor de BI. Estos resultados destacan la importancia de que las consultorías de BI en Guayaquil aborden proactivamente estas preocupaciones, ofreciendo soluciones rentables y accesibles, y enfocándose en la educación y soporte para superar la resistencia al cambio y la falta de conocimiento técnico. 
+
+
+### Pregunta 9: ¿Qué tipo de consultoría de BI consideraría más útil?
+
+#### Tabla de Frecuencia: 
+
+```{r}
+
+# Carga del paquete knitr para la utilización de la función kable, útil para crear tablas en R Markdown
+library(knitr)
+
+# Creación de un data frame que contiene los obstáculos significativos para la implementación de BI, junto con las frecuencias y porcentajes
+obstaculos_bi <- data.frame(
+  `Obstáculos Significativos para BI` = c("Costo de implementación", "Complejidad técnica", "Resistencia al cambio",
+                                          "Falta de tiempo para capacitación", "No percibimos obstáculos significativos", "Total"),
+  Frecuencia = c(35, 30, 20, 10, 5, 100),
+  Porcentaje = c("35.0%", "30.0%", "20.0%", "10.0%", "5.0%", "100.0%")
+)
+
+# Se emplea la función kable para convertir el data frame en una tabla bien formateada para R Markdown, incluyendo un título
+knitr::kable(obstaculos_bi, caption = "Obstáculos Significativos para la Implementación de BI")
+
+```
+
+#### Gráfica: 
+Pregunta 9
+
+```{r}
+
+# Asegúrate de tener ggplot2 cargado para ejecutar este código
+library(ggplot2)
+
+# Datos sobre los tipos de consultoría de BI considerados más útiles
+tipos_consultoria_bi <- c("Formación y capacitación en BI", 
+                          "Consultoría para selección e implementación de herramientas de BI", 
+                          "Servicios de análisis y reporte de datos", 
+                          "Consultoría estratégica basada en datos", 
+                          "No estoy seguro/a de lo que necesitamos")
+frecuencia <- c(20, 15, 15, 10, 40)
+porcentaje <- c(20, 15, 15, 10, 40)
+
+df_tipos_consultoria_bi <- data.frame(TiposConsultoriaBI = tipos_consultoria_bi, Frecuencia = frecuencia, Porcentaje = porcentaje)
+
+# Crear la gráfica de barras
+ggplot(df_tipos_consultoria_bi, aes(x = TiposConsultoriaBI, y = Frecuencia, fill = TiposConsultoriaBI)) +
+  geom_bar(stat = "identity") +
+  theme_minimal() +
+  labs(title = "Tipos de Consultoría de BI Considerados Más Útiles por las Empresas",
+       x = "Tipo de Consultoría de BI",
+       y = "Frecuencia") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Ajustar el texto del eje x para mejorar la legibilidad
+
+```
+
+#### Analisis:
+
+El 40% de los encuestados no está seguro de qué tipo de consultoría de BI necesitan, lo que indica una falta de claridad y conocimiento sobre BI en el mercado de Guayaquil. Esto sugiere que hay una oportunidad significativa para las consultorías de BI para educar y orientar a las empresas sobre los beneficios y aplicaciones de BI. La formación y capacitación en BI es considerada útil por el 20% de los encuestados, destacando la necesidad de servicios educativos en este campo. La consultoría para la selección e implementación de herramientas de BI y los servicios de análisis y reporte de datos también son valorados, aunque en menor medida. La consultoría estratégica basada en datos es vista como menos crítica en este momento, posiblemente debido a un nivel de madurez más bajo en el uso de BI. Estos resultados enfatizan la importancia de ofrecer servicios diversificados de consultoría de BI, con un enfoque particular en la educación y la orientación inicial.
+
+
+### Pregunta 10: ¿Cuánto estaría dispuesto/a a pagar por servicios de consultoría de BI?
+
+#### Tabla de Frecuencia: 
+
+```{r}
+
+# Importación de la librería knitr, utilizada para la creación de tablas con la función kable
+library(knitr)
+
+# Se define un data frame que contiene información sobre la disposición a pagar por servicios de BI, incluyendo frecuencias y porcentajes
+disposicion_pago_bi <- data.frame(
+  `Disposición a Pagar por BI` = c("Nada, no es una prioridad", "Hasta $100 al mes",
+                                   "Entre $100 y $500 al mes", "Más de $500 al mes",
+                                   "Depende del retorno de la inversión", "Total"),
+  Frecuencia = c(45, 25, 15, 5, 10, 100),
+  Porcentaje = c("45.0%", "25.0%", "15.0%", "5.0%", "10.0%", "100.0%")
+)
+
+# Aplicación de la función kable para transformar el data frame en una tabla estilizada para R Markdown, agregando un título explicativo
+knitr::kable(disposicion_pago_bi, caption = "Disposición a Pagar por Servicios de BI")
+
+```
+
+#### Gráfica: 
+Pregunta 10 
+
+```{r}
+
+# Asegúrate de tener ggplot2 cargado para ejecutar este código
+if(!require(ggplot2)) install.packages("ggplot2")
+library(ggplot2)
+
+# Datos sobre la disposición a pagar por servicios de BI
+disposicion_pagar_bi <- c("Nada, no es una prioridad", 
+                          "Hasta $100 al mes", 
+                          "Entre $100 y $500 al mes", 
+                          "Más de $500 al mes", 
+                          "Depende del retorno de la inversión")
+frecuencia <- c(45, 25, 15, 5, 10)
+porcentaje <- c(45, 25, 15, 5, 10)
+
+df_disposicion_pagar_bi <- data.frame(DisposicionPagarBI = disposicion_pagar_bi, Frecuencia = frecuencia, Porcentaje = porcentaje)
+
+# Crear la gráfica de barras
+ggplot(df_disposicion_pagar_bi, aes(x = DisposicionPagarBI, y = Frecuencia, fill = DisposicionPagarBI)) +
+  geom_bar(stat = "identity") +
+  theme_minimal() +
+  labs(title = "Disposición de las Empresas a Pagar por Servicios de Consultoría de BI",
+       x = "Disposición a Pagar por BI",
+       y = "Frecuencia") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Ajustar el texto del eje x para mejorar la legibilidad
+
+```
+
+#### Analisis:
+
+El 45% de las empresas no considera una prioridad la inversión en consultoría de BI, lo que sugiere una falta de conciencia sobre el valor y el potencial retorno de la inversión (ROI) de estas tecnologías. Un 25% estaría dispuesto a invertir hasta USD 100 al mes, indicando una posible apertura a explorar servicios de BI a bajo costo. Solo un 15% consideraría pagar entre USD 100 y USD 500 al mes, y un 5% más de USD 500, lo que sugiere que el mercado de BI en Guayaquil podría estar aún en una etapa temprana de adopción, con una disposición limitada a invertir cantidades significativas. El 10% que indica que su disposición a pagar depende del ROI muestra una apertura a considerar BI como una inversión estratégica. Estos resultados destacan la necesidad de estrategias de mercado que eduquen a las empresas sobre el valor y los beneficios de BI, así como la oferta de soluciones escalables que se ajusten a diferentes niveles de inversión. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
